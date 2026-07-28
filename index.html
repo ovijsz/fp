@@ -230,13 +230,23 @@
   }
   .zoom-controls button:hover{border-color:var(--amber-dim); color:var(--amber);}
   .pin{
-    position:absolute; width:9px; height:9px; border-radius:50%;
+    position:absolute; width:11px; height:11px; border-radius:50%;
     background:#9aa5a3; border:1.5px solid #0b1f26; box-shadow:0 0 0 1px #ffffff33;
     transform:translate(-50%,-50%); cursor:pointer; transition:transform .1s;
   }
   .pin:hover{ transform:translate(-50%,-50%) scale(1.6); z-index:5; }
   .pin.trophy{ background:#4caf6a; box-shadow:0 0 0 1px #4caf6a55; }
   .pin.unique{ background:#e8c94d; box-shadow:0 0 0 1px #e8c94d55; }
+  .pin-tip{
+    position:fixed; z-index:50; pointer-events:none; display:none;
+    background:#0b1f26f0; border:1px solid var(--panel-line); border-radius:6px;
+    padding:6px 10px 6px 6px; display:none; align-items:center; gap:8px;
+    box-shadow:0 8px 20px #00000066; transform:translate(-50%,-115%);
+  }
+  .pin-tip img{ width:32px; height:32px; object-fit:contain; background:#08181d; border-radius:4px; }
+  .pin-tip .noimg{ width:32px; height:32px; border-radius:4px; background:#08181d; }
+  .pin-tip .nm{ font-size:12.5px; font-weight:600; color:var(--ink); white-space:nowrap; }
+  .pin-tip .ty{ font-size:10px; font-family:var(--font-mono); color:var(--ink-dim); text-transform:capitalize; }
 
   footer{
     max-width:1180px; margin:40px auto 0; padding:20px; color:var(--ink-dim);
@@ -288,12 +298,13 @@
 
 <footer>FPHelper — offline-friendly Fishing Planet reference &middot; data sourced from the fp-collective.com API export &middot; images load from the internet when available</footer>
 
+<div class="pin-tip" id="pinTip"><img id="pinTipImg" style="display:none;"><div class="noimg" id="pinTipNoImg" style="display:none;"></div><div><div class="nm" id="pinTipName"></div><div class="ty" id="pinTipType"></div></div></div>
 <div class="overlay" id="overlay">
   <div class="detail" id="detailBox"></div>
 </div>
 
 <script>
-const TACKLE_DATA = [{"rod": "CreekPro", "cm": 240, "level": 3, "lureG": "5-35", "maxLineKg": 2.7, "reels": [{"reel": "Torbellino 11000", "level": 65, "dragKg": 2.67}, {"reel": "WCC Torbellino 11000", "level": "DLC", "dragKg": null}, {"reel": "Callisto MG 3000/Sport", "level": "13/DLC", "dragKg": null}, {"reel": "BFFT BreamHunter 3500", "level": "DLC", "dragKg": 2.71}, {"reel": "CrucianHunter 3500/SE", "level": "10/3/DLC", "dragKg": null}, {"reel": "EspiraSlim 2500/SE/Sport", "level": "10/DLC", "dragKg": 2.54}], "id": 1}, {"rod": "CreekPro", "cm": 270, "level": 5, "lureG": "10-40", "maxLineKg": 2.5, "reels": [{"reel": "CrucianHunter 3000", "level": 8, "dragKg": 2.5}, {"reel": "ExcelSpinner 6000", "level": 55, "dragKg": 2.46}, {"reel": "MatchCatch 8000/SE", "level": "63/53", "dragKg": 2.44}, {"reel": "InspireCast 3000/SE", "level": "9/5/DLC", "dragKg": 2.42}, {"reel": "WinCast 2500", "level": 8, "dragKg": null}, {"reel": "WinCast 1500", "level": 5, "dragKg": 1.88}, {"reel": "CallistoXSR 1000", "level": 2, "dragKg": 1.33}], "id": 2}, {"rod": "CreekPro", "cm": 300, "level": 7, "lureG": "15-50", "maxLineKg": 3.15, "reels": [{"reel": "Hornet Swarm 5000/SE", "level": "31/22/DLC", "dragKg": 3.17}, {"reel": "Prima 3500 SE", "level": "10/DLC", "dragKg": 3.13}, {"reel": "L'impulsion 12000/SE", "level": "75/68/DLC", "dragKg": 3.08}, {"reel": "Big River 6000/SE/Sport/Deluxe/Golden/PS+", "level": "27/20/DLC/PS", "dragKg": 3.06}, {"reel": "Callisto MG 2500", "level": 11, "dragKg": 2.92}, {"reel": "Torbellino 11000", "level": 65, "dragKg": 2.67}, {"reel": "CallistoXS 1400", "level": 7, "dragKg": 2.17}], "id": 3}, {"rod": "BFFT BreamCast", "cm": 300, "level": "DLC", "lureG": "15-50", "maxLineKg": 2.71, "reels": [{"reel": "BFFT BreamHunter 3500", "level": "DLC", "dragKg": 2.71}, {"reel": "CrucianHunter 3500/SE", "level": "10/3/DLC", "dragKg": null}, {"reel": "EspiraSlim 2500/SE/Sport", "level": "10/DLC", "dragKg": 2.54}], "id": 4}, {"rod": "AllRound", "cm": 330, "level": 12, "lureG": "20-70", "maxLineKg": 3.6, "reels": [{"reel": "FeederForcer 5000/SE/PS+", "level": "15/10/DLC", "dragKg": 3.58}, {"reel": "BadSanta 5000", "level": "DLC", "dragKg": 3.56}, {"reel": "Patriot's Dream 4000", "level": null, "dragKg": null}, {"reel": "Breamer 4000", "level": 20, "dragKg": null}, {"reel": "HeartSpinner 3500", "level": "DLC", "dragKg": null}, {"reel": "Prima 2000", "level": 14, "dragKg": 3.5}, {"reel": "Callisto MG 3000/Sport", "level": "13/DLC", "dragKg": 3.33}, {"reel": "FeederForcer 4000", "level": 13, "dragKg": 3.21}, {"reel": "Hornet Swarm 5000/SE", "level": "31/22/DLC", "dragKg": 3.17}], "id": 5}, {"rod": "AllRound", "cm": 360, "level": "14/3", "lureG": "30-90", "maxLineKg": 4.4, "reels": [{"reel": "Prima 3500 SE", "level": "10/DLC", "dragKg": 4.38}, {"reel": "FatBoySpin 4000", "level": 24, "dragKg": null}, {"reel": "Leviathan 10000", "level": 50, "dragKg": 4.37}, {"reel": "BadSanta 5000", "level": "DLC", "dragKg": 3.56}, {"reel": "Patriot's Dream 4000", "level": "DLC", "dragKg": null}, {"reel": "Breamer 4000", "level": 20, "dragKg": null}, {"reel": "Callisto MG 3000/Sport", "level": "13/DLC", "dragKg": 3.33}], "id": 6}, {"rod": "AllRound", "cm": 390, "level": "16/DLC", "lureG": "40-120", "maxLineKg": 4.5, "reels": [{"reel": "Breamer 4500/SE", "level": "22/12/DLC", "dragKg": 4.43}, {"reel": "SuccadeReel 4500", "level": "DLC", "dragKg": null}, {"reel": "ExcelSpinner 5000/SE", "level": "55/50", "dragKg": 4.42}, {"reel": "Prima 3500 SE", "level": "10/DLC", "dragKg": 4.38}, {"reel": "FatBoySpin 4000", "level": 24, "dragKg": null}], "id": 7}, {"rod": "BFFT FrenzyRound", "cm": 390, "level": "DLC", "lureG": "40-120", "maxLineKg": 3.2, "reels": [{"reel": "Hornet Swarm 5000/SE", "level": "31/22/DLC", "dragKg": 3.17}, {"reel": "Prima 3500 SE", "level": "10/DLC", "dragKg": 3.13}], "id": 8}, {"rod": "Laker Pro", "cm": 340, "level": 19, "lureG": "15-60", "maxLineKg": 5.4, "reels": [{"reel": "Big River 6500", "level": 28, "dragKg": 5.38}, {"reel": "GiantSpin 9000/SE", "level": "79/75/DLC", "dragKg": null}, {"reel": "EspiraML 3500", "level": 22, "dragKg": 5.25}], "id": 9}, {"rod": "Laker Pro", "cm": 370, "level": "20/12", "lureG": "20-70", "maxLineKg": 5.0, "reels": [{"reel": "Breamer 4500/SE", "level": "22/12/DLC", "dragKg": 5.16}, {"reel": "Breamer 4000", "level": 20, "dragKg": 4.99}, {"reel": "HeartSpinner 3500", "level": "DLC", "dragKg": null}], "id": 10}, {"rod": "FruitCake", "cm": 370, "level": "DLC", "lureG": "20-70", "maxLineKg": null, "reels": [{"reel": "EspiraMLR 2000", "level": 18, "dragKg": 4.58}, {"reel": "EspiraMLR 2500", "level": 19, "dragKg": null}, {"reel": "EspiraMLR 3000", "level": null, "dragKg": null}], "id": 11}, {"rod": "Laker Pro", "cm": 400, "level": 21, "lureG": "25-85", "maxLineKg": 6.0, "reels": [{"reel": "L'impulsion 11000", "level": 72, "dragKg": 5.83}, {"reel": "CGT SpinTitan 4500", "level": "DLC", "dragKg": 5.81}, {"reel": "Ambusher 9000/SE/Sport/Golden", "level": "45/42/DLC", "dragKg": 5.63}, {"reel": "Ultimate Roller 2500S", "level": 48, "dragKg": null}, {"reel": "GiantSpin 10000", "level": 80, "dragKg": null}, {"reel": "Exterminator 4500", "level": 25, "dragKg": null}, {"reel": "FatBoySpin 6000/SE", "level": "28/DLC", "dragKg": null}, {"reel": "Breamer 5000", "level": 24, "dragKg": 5.56}, {"reel": "Mega Tank 6000", "level": 36, "dragKg": 5.44}, {"reel": "EspiraML 3500", "level": 22, "dragKg": 5.25}, {"reel": "Breamer 4500/SE", "level": "22/12/DLC", "dragKg": 5.16}, {"reel": "Breamer 4000", "level": 20, "dragKg": 4.99}], "id": 12}, {"rod": "Big Alli", "cm": 390, "level": 23, "lureG": "70-140", "maxLineKg": 7.7, "reels": [{"reel": "Ghost Reel 5000", "level": "DLC", "dragKg": 7.67}, {"reel": "MatchCatch 9000", "level": 65, "dragKg": 7.63}, {"reel": "Big River 6500", "level": 28, "dragKg": 7.53}, {"reel": "CCO OmniVolt 5000", "level": "DLC", "dragKg": 7.44}, {"reel": "Exterminator 5500", "level": 27, "dragKg": null}, {"reel": "Griffon Spod 10000", "level": 50, "dragKg": 7.17}, {"reel": "Big River 6000/SE/Sport/Deluxe/Golden/PS+", "level": "27/20/DLC/PS", "dragKg": 7.13}, {"reel": "CGT SpinTitan 5500", "level": "DLC", "dragKg": null}, {"reel": "Dragonus 5500", "level": null, "dragKg": null}, {"reel": "FPBS FireThunderSpin 5500", "level": null, "dragKg": null}, {"reel": "RiverTex RedFish 5500", "level": null, "dragKg": null}], "id": 13}];
+const TACKLE_DATA = [{"id": 1, "series": "MagFin FeatherLight", "power": "Ultra-Light", "action": "Fast", "pieces": 2, "cm": 190, "lureG": "0.5-7", "lineKg": "1.50-4.00", "guides": 8, "level": 9, "price": 3000}, {"id": 2, "series": "MagFin FeatherLight", "power": "Ultra-Light", "action": "Fast", "pieces": 2, "cm": 200, "lureG": "1-9", "lineKg": "1.50-4.00", "guides": 9, "level": 10, "price": 3200}, {"id": 3, "series": "MagFin FeatherLight", "power": "Ultra-Light", "action": "Fast", "pieces": 2, "cm": 210, "lureG": "1.5-11", "lineKg": "1.50-4.00", "guides": 10, "level": 11, "price": 3500}, {"id": 4, "series": "MagFin JigWinner", "power": "Light", "action": "Fast", "pieces": 2, "cm": 200, "lureG": "4-18", "lineKg": "1.50-5.00", "guides": 10, "level": 16, "price": 5000}, {"id": 5, "series": "MagFin JigWinner", "power": "Light", "action": "Fast", "pieces": 2, "cm": 240, "lureG": "4-18", "lineKg": "1.50-5.50", "guides": 10, "level": 18, "price": 5700}, {"id": 6, "series": "MagFin JigWinner", "power": "Light", "action": "Fast", "pieces": 2, "cm": 270, "lureG": "4-18", "lineKg": "1.50-6.00", "guides": 10, "level": 20, "price": 7500}, {"id": 7, "series": "MagFin Elemental", "power": "Ultra-Light / Light", "action": "Fast", "pieces": 2, "cm": 200, "lureG": "2-9", "lineKg": "1.50-3.20", "guides": 8, "level": 4, "price": 1700}, {"id": 8, "series": "MagFin Elemental", "power": "Ultra-Light / Light", "action": "Fast", "pieces": 2, "cm": 240, "lureG": "5-12", "lineKg": "1.50-3.40", "guides": 9, "level": 6, "price": 1850}, {"id": 9, "series": "MagFin Elemental", "power": "Ultra-Light / Light", "action": "Fast", "pieces": 2, "cm": 260, "lureG": "6-14", "lineKg": "1.50-3.50", "guides": 11, "level": 8, "price": 2100}, {"id": 10, "series": "MagFin Aguarayo", "power": "X-Heavy", "action": "Mod Fast", "pieces": 1, "cm": 190, "lureG": "40-70", "lineKg": "16.00-31.00", "guides": 8, "level": 55, "price": 45000}, {"id": 11, "series": "MagFin Aguarayo", "power": "X-Heavy", "action": "Mod Fast", "pieces": 1, "cm": 200, "lureG": "50-80", "lineKg": "17.00-32.25", "guides": 8, "level": 57, "price": 47200}, {"id": 12, "series": "MagFin Aguarayo", "power": "X-Heavy", "action": "Mod Fast", "pieces": 1, "cm": 210, "lureG": "60-100", "lineKg": "18.00-34.50", "guides": 8, "level": 59, "price": 50120}, {"id": 13, "series": "MagFin RiverSpear", "power": "Light", "action": "Mod Fast", "pieces": 2, "cm": 210, "lureG": "3-14", "lineKg": "12.00-26.00", "guides": 11, "level": 51, "price": 41840}, {"id": 14, "series": "MagFin RiverSpear", "power": "Light", "action": "Mod Fast", "pieces": 2, "cm": 230, "lureG": "3-14", "lineKg": "11.00-24.50", "guides": 11, "level": 49, "price": 38600}, {"id": 15, "series": "MagFin RiverSpear", "power": "Light", "action": "Mod Fast", "pieces": 2, "cm": 250, "lureG": "3-14", "lineKg": "10.00-23.00", "guides": 11, "level": 48, "price": 34060}, {"id": 16, "series": "Garry Scott Aurora", "power": "Light", "action": "Fast", "pieces": 2, "cm": 190, "lureG": "7-14", "lineKg": "1.50-4.50", "guides": 8, "level": 12, "price": 4150}, {"id": 17, "series": "Garry Scott Aurora", "power": "Light", "action": "Fast", "pieces": 2, "cm": 230, "lureG": "10-21", "lineKg": "1.50-4.50", "guides": 9, "level": 13, "price": 4300}, {"id": 18, "series": "Garry Scott Aurora", "power": "Light", "action": "Fast", "pieces": 2, "cm": 250, "lureG": "10-21", "lineKg": "1.50-4.50", "guides": 10, "level": 14, "price": 4450}, {"id": 19, "series": "RIVERTEX Thora", "power": "Heavy", "action": "Mod-Fast", "pieces": 2, "cm": 210, "lureG": "20-50", "lineKg": "3.00-7.50", "guides": 8, "level": 22, "price": 9000}, {"id": 20, "series": "RIVERTEX Thora", "power": "Heavy", "action": "Mod-Fast", "pieces": 2, "cm": 240, "lureG": "20-50", "lineKg": "3.00-8.50", "guides": 9, "level": 25, "price": 9300}, {"id": 21, "series": "RIVERTEX Thora", "power": "Heavy", "action": "Mod-Fast", "pieces": 2, "cm": 290, "lureG": "20-50", "lineKg": "2.50-9.50", "guides": 10, "level": 27, "price": 9500}, {"id": 22, "series": "RIVERTEX Loki", "power": "Heavy", "action": "Moderate", "pieces": 2, "cm": 200, "lureG": "20-65", "lineKg": "3.50-10.50", "guides": 8, "level": 30, "price": 12000}, {"id": 23, "series": "RIVERTEX Loki", "power": "Heavy", "action": "Moderate", "pieces": 2, "cm": 230, "lureG": "20-65", "lineKg": "3.50-11.00", "guides": 9, "level": 31, "price": 12400}, {"id": 24, "series": "RIVERTEX Loki", "power": "Heavy", "action": "Moderate", "pieces": 2, "cm": 270, "lureG": "25-70", "lineKg": "4.00-12.00", "guides": 10, "level": 34, "price": 15600}, {"id": 25, "series": "RIVERTEX Zeus", "power": "X-Heavy", "action": "Mod-Fast", "pieces": 2, "cm": 225, "lureG": "18-56", "lineKg": "6.75-19.50", "guides": 10, "level": 38, "price": 26000}, {"id": 26, "series": "RIVERTEX Zeus", "power": "X-Heavy", "action": "Mod-Fast", "pieces": 2, "cm": 250, "lureG": "18-56", "lineKg": "6.75-19.50", "guides": 10, "level": 39, "price": 26500}, {"id": 27, "series": "RIVERTEX Zeus", "power": "X-Heavy", "action": "Mod-Fast", "pieces": 2, "cm": 270, "lureG": "21-60", "lineKg": "8.50-21.00", "guides": 11, "level": 40, "price": 28000}, {"id": 28, "series": "RIVERTEX Thetis", "power": "X-Heavy", "action": "Mod Fast", "pieces": 2, "cm": 200, "lureG": "21-63", "lineKg": "13.00-30.50", "guides": 8, "level": 52, "price": 47900}, {"id": 29, "series": "RIVERTEX Thetis", "power": "X-Heavy", "action": "Mod Fast", "pieces": 2, "cm": 230, "lureG": "18-56", "lineKg": "11.00-27.50", "guides": 9, "level": 48, "price": 39700}, {"id": 30, "series": "RIVERTEX Thetis", "power": "X-Heavy", "action": "Mod Fast", "pieces": 2, "cm": 250, "lureG": "14-49", "lineKg": "10.00-25.50", "guides": 10, "level": 50, "price": 40500}, {"id": 31, "series": "Flaggmann ValueSpin", "power": "Light", "action": "Fast / Mod-Fast", "pieces": 2, "cm": 190, "lureG": "5-18", "lineKg": "1.50-3.00", "guides": 7, "level": 3, "price": 1250}, {"id": 32, "series": "Flaggmann ValueSpin", "power": "Light", "action": "Fast / Mod-Fast", "pieces": 2, "cm": 230, "lureG": "7-20", "lineKg": "1.50-3.40", "guides": 8, "level": 5, "price": 1800}, {"id": 33, "series": "Flaggmann ValueSpin", "power": "Light", "action": "Fast / Mod-Fast", "pieces": 2, "cm": 260, "lureG": "7-21", "lineKg": "1.50-3.50", "guides": 8, "level": 7, "price": 1950}, {"id": 34, "series": "RIVERTEX NileChasseur", "power": "X-Heavy", "action": "Mod-Fast", "pieces": 2, "cm": 180, "lureG": "21-70", "lineKg": "18.00-42.00", "guides": 10, "level": 76, "price": 67460}, {"id": 35, "series": "RIVERTEX NileChasseur", "power": "X-Heavy", "action": "Mod-Fast", "pieces": 2, "cm": 190, "lureG": "28-74", "lineKg": "21.00-44.00", "guides": 10, "level": 78, "price": 69110}, {"id": 36, "series": "RIVERTEX NileChasseur", "power": "X-Heavy", "action": "Mod-Fast", "pieces": 2, "cm": 200, "lureG": "28-80", "lineKg": "22.00-46.00", "guides": 10, "level": 80, "price": 73140}];
 let DATA = null;
 let byId = {};
 let state = { tab:'fish', query:'', filter:'' };
@@ -322,7 +333,7 @@ fetch('data.json').then(r=>r.json()).then(d=>{
     byId.gearItems[g.kindKey][g.id] = g;
   });
   DATA.places = (DATA.places||[]).slice().sort((a,b)=> (a.baseLevel||0)-(b.baseLevel||0));
-  DATA.tackle = TACKLE_DATA.map(t=>Object.assign({title:t.rod}, t));
+  DATA.tackle = TACKLE_DATA.map(t=>Object.assign({title:t.series}, t));
   byId.tackle = {};
   DATA.tackle.forEach(t=>{ byId.tackle[t.id] = t; });
   init();
@@ -412,10 +423,10 @@ function cardFor(tab, item){
     return `<div class="card" data-open="tackle:${item.id}">
       <div class="thumb" style="background:linear-gradient(135deg,#173b45,#0d2229); display:flex; align-items:center; justify-content:center;"><span style="font-size:34px; opacity:.55; filter:grayscale(.2);">&#127907;</span></div>
       <div class="body">
-        <div class="title">${escapeHtml(item.rod)} <span style="color:var(--ink-dim); font-weight:400;">${item.cm}cm</span></div>
-        <div class="meta">level ${escapeHtml(String(item.level))}</div>
-        <div class="bites">Lure ${escapeHtml(item.lureG)} g${item.maxLineKg? ` &middot; line/leader ${item.maxLineKg} kg`:''}</div>
-        <div class="tag" style="align-self:flex-start; font-family:var(--font-mono); font-size:10px; color:var(--amber); border:1px solid var(--line); padding:2px 7px; border-radius:20px; margin-top:auto;">${item.reels.length} reel options</div>
+        <div class="title">${escapeHtml(item.series)} <span style="color:var(--ink-dim); font-weight:400;">${item.cm}cm</span></div>
+        <div class="meta">${escapeHtml(item.power)} &middot; level ${escapeHtml(String(item.level))}</div>
+        <div class="bites">Lure ${escapeHtml(item.lureG)} g &middot; line ${escapeHtml(item.lineKg)} kg</div>
+        <div class="tag" style="align-self:flex-start; font-family:var(--font-mono); font-size:10px; color:var(--amber); border:1px solid var(--line); padding:2px 7px; border-radius:20px; margin-top:auto;">${escapeHtml(item.action)}</div>
       </div>
     </div>`;
   }
@@ -776,33 +787,40 @@ function fishDetailHtml(item){
 }
 
 function tackleDetailHtml(item){
-  const reelRows = item.reels.map(r=>`
-    <div class="spec-card">
-      <div class="st">
-        <div class="nm">${escapeHtml(r.reel)}</div>
-        <div class="sp">${r.level!=null? 'level '+escapeHtml(String(r.level)) : ''}${r.dragKg!=null? ' &middot; max drag <b>'+r.dragKg+' kg</b>' : ''}</div>
-      </div>
-    </div>
-  `).join('');
+  const siblings = DATA.tackle.filter(t=>t.series===item.series);
+  const rows = [
+    ['Length', item.cm+' cm'],
+    ['Power', item.power],
+    ['Action', item.action],
+    ['Pieces', item.pieces],
+    ['Guides', item.guides],
+    ['Lure weight', item.lureG+' g'],
+    ['Line weight', item.lineKg+' kg'],
+    ['Required level', item.level],
+    ['Price', item.price+' game gold'],
+  ];
   return `
     <div class="hero">
       <button class="close">&times;</button>
       <div class="htext">
-        <h2>${escapeHtml(item.rod)} <span style="color:var(--ink-dim); font-weight:400; font-size:18px;">${item.cm}cm</span></h2>
-        <div class="latin">Spin rod</div>
+        <h2>${escapeHtml(item.series)} <span style="color:var(--ink-dim); font-weight:400; font-size:18px;">${item.cm}cm</span></h2>
+        <div class="latin">Spinning rod</div>
         <div class="stats">
           <div class="stat"><b>${item.cm} cm</b>length</div>
           <div class="stat"><b>${escapeHtml(String(item.level))}</b>unlock level</div>
-          <div class="stat"><b>${escapeHtml(item.lureG)} g</b>lure weight range</div>
-          ${item.maxLineKg? `<div class="stat"><b>${item.maxLineKg} kg</b>max line/leader</div>`:''}
+          <div class="stat"><b>${escapeHtml(item.lureG)} g</b>lure weight</div>
+          <div class="stat"><b>${escapeHtml(item.lineKg)} kg</b>line weight</div>
         </div>
       </div>
     </div>
     <div class="content">
-      <h3 class="section" style="margin-top:0;">Compatible reels <span class="n">${item.reels.length}</span></h3>
-      <div class="spec-grid">${reelRows}</div>
+      <div class="spec-grid">${rows.map(r=>`<div class="spec-card"><div class="st"><div class="nm">${escapeHtml(String(r[0]))}</div><div class="sp">${escapeHtml(String(r[1]))}</div></div></div>`).join('')}</div>
+      ${siblings.length>1? `
+        <h3 class="section">Other lengths in this series</h3>
+        <div class="chip-row">${siblings.map(s=>`<div class="chip" data-open="tackle:${s.id}">${s.cm}cm <span style="opacity:.6; margin-left:4px;">Lv.${s.level}</span></div>`).join('')}</div>
+      ` : ''}
       <div style="font-size:11px; color:var(--ink-dim); font-family:var(--font-mono); margin-top:16px;">
-        Metric only (kg / cm / g), converted from the community Ubersheet's line-rating & rod/reel combination chart.
+        Metric only (kg / cm / g) — official specs from wiki.fishingplanet.com/Spinning_rods. Limited-edition, DLC and tournament-reward variants are not included, only the standard purchasable series.
       </div>
     </div>
   `;
@@ -892,7 +910,8 @@ function placeDetailHtml(item){
     const f = byId.fish[p.fishId];
     const name = f? f.title : ('fish #'+p.fishId);
     const openAttr = f? ` data-open="fish:${p.fishId}"` : '';
-    return `<div class="pin ${p.type==='trophy'?'trophy':(p.type==='unique'?'unique':'')}" style="left:${p.x}%; top:${p.y}%;" title="${escapeHtml(name)} (${escapeHtml(p.type||'common')})"${openAttr}></div>`;
+    const imgAttr = f && f.image ? ` data-fish-img="${escapeHtml(f.image)}"` : '';
+    return `<div class="pin ${p.type==='trophy'?'trophy':(p.type==='unique'?'unique':'')}" style="left:${p.x}%; top:${p.y}%;" data-fish-name="${escapeHtml(name)}" data-fish-type="${escapeHtml(p.type||'common')}"${imgAttr}${openAttr}></div>`;
   }).join('');
   const svgMap = svgMapFor(item.slug);
   const mapSrc = svgMap || item.image;
@@ -963,6 +982,39 @@ function subDetailHtml(tab, item){
 document.getElementById('overlay').onclick = (e)=>{ if(e.target.id==='overlay') closeDetail(); };
 document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeDetail(); });
 document.getElementById('searchBox').oninput = (e)=>{ state.query = e.target.value; render(); };
+
+// custom pin hover card (fish thumbnail + name) instead of the plain browser tooltip
+(function(){
+  const tip = document.getElementById('pinTip');
+  const tipImg = document.getElementById('pinTipImg');
+  const tipNoImg = document.getElementById('pinTipNoImg');
+  const tipName = document.getElementById('pinTipName');
+  const tipType = document.getElementById('pinTipType');
+  function showTip(pin, x, y){
+    const name = pin.dataset.fishName || 'Unknown fish';
+    const type = pin.dataset.fishType || 'common';
+    const img = pin.dataset.fishImg;
+    tipName.textContent = name;
+    tipType.textContent = type;
+    if(img){ tipImg.src = img; tipImg.style.display='block'; tipNoImg.style.display='none'; }
+    else { tipImg.style.display='none'; tipNoImg.style.display='block'; }
+    tip.style.left = x+'px';
+    tip.style.top = y+'px';
+    tip.style.display = 'flex';
+  }
+  document.addEventListener('mouseover', e=>{
+    const pin = e.target.closest && e.target.closest('.pin');
+    if(pin) showTip(pin, e.clientX, e.clientY);
+  });
+  document.addEventListener('mousemove', e=>{
+    const pin = e.target.closest && e.target.closest('.pin');
+    if(pin){ tip.style.left = e.clientX+'px'; tip.style.top = e.clientY+'px'; }
+  });
+  document.addEventListener('mouseout', e=>{
+    const pin = e.target.closest && e.target.closest('.pin');
+    if(pin) tip.style.display = 'none';
+  });
+})();
 document.querySelectorAll('nav.tabs button').forEach(b=>{
   b.onclick = ()=>{ state.tab = b.dataset.tab; state.query=''; state.filter=''; document.getElementById('searchBox').value=''; render(); };
 });
