@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FPHelper</title>
+<title>FPHelper — Fishing Planet reference</title>
 <style>
   :root{
     --deep:#0b1f26;
@@ -162,17 +162,21 @@
   .detail .hero .stats{display:flex; gap:14px; flex-wrap:wrap; margin-top:10px;}
   .detail .hero .stat{font-family:var(--font-mono); font-size:11.5px; color:var(--ink-dim);}
   .detail .hero .stat b{color:var(--amber); display:block; font-size:14px; font-family:var(--font-body);}
-  .detail .close{
-    position:absolute; top:14px; right:16px; background:none; border:none; color:var(--ink-dim);
-    font-size:22px; cursor:pointer; line-height:1;
+  .detail .close, .back-btn{
+    position:absolute; top:14px; z-index:6;
+    width:32px; height:32px; border-radius:50%;
+    background:#0b1f26b0; backdrop-filter:blur(4px);
+    border:1px solid #ffffff1a; color:var(--ink-dim);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; line-height:1; font-size:17px;
+    transition:background .15s, border-color .15s, color .15s, transform .1s;
   }
-  .detail .close:hover{color:var(--amber);}
-  .back-btn{
-    position:absolute; top:14px; left:16px; z-index:4; background:#0d242bcc; border:1px solid var(--panel-line);
-    color:var(--ink); font-size:17px; cursor:pointer; line-height:1; width:30px; height:30px; border-radius:50%;
-    align-items:center; justify-content:center; display:none;
+  .detail .close{ right:14px; font-size:20px; }
+  .back-btn{ left:14px; display:none; }
+  .detail .close:hover, .back-btn:hover{
+    color:var(--amber); border-color:var(--amber-dim); background:#12313bd0; transform:scale(1.06);
   }
-  .back-btn:hover{ color:var(--amber); border-color:var(--amber-dim); }
+  .detail .close:active, .back-btn:active{ transform:scale(0.94); }
   .detail .content{padding:22px 26px 26px; font-size:14.5px; line-height:1.65; color:#d7e6e2;}
   .detail .content p{margin:0 0 12px;}
   .detail h3.section{
@@ -258,12 +262,13 @@
 <header>
   <div class="brand">
     <span class="mark">&#127907;</span>
-    <h1>FPHelper <span style="color:var(--ink-dim); font-weight:400;"></span></h1>
+    <h1>FPHelper <span style="color:var(--ink-dim); font-weight:400;">/ Fishing Planet reference</span></h1>
     <span class="sub" id="metaLine">loading...</span>
   </div>
   <nav class="tabs" id="tabs">
     <button data-tab="fish" class="active">Fish</button>
     <button data-tab="gear">Gear</button>
+    <button data-tab="tackle">Tackle</button>
     <button data-tab="places">Maps</button>
     <button data-tab="trends">Trends</button>
   </nav>
@@ -281,13 +286,14 @@
   <div id="extraPanel"></div>
 </main>
 
-<footer>The Collective — offline-friendly Fishing Planet reference &middot; data sourced from the fp-collective.com API export &middot; images load from the internet when available</footer>
+<footer>FPHelper — offline-friendly Fishing Planet reference &middot; data sourced from the fp-collective.com API export &middot; images load from the internet when available</footer>
 
 <div class="overlay" id="overlay">
   <div class="detail" id="detailBox"></div>
 </div>
 
 <script>
+const TACKLE_DATA = [{"rod": "CreekPro", "cm": 240, "level": 3, "lureG": "5-35", "maxLineKg": 2.7, "reels": [{"reel": "Torbellino 11000", "level": 65, "dragKg": 2.67}, {"reel": "WCC Torbellino 11000", "level": "DLC", "dragKg": null}, {"reel": "Callisto MG 3000/Sport", "level": "13/DLC", "dragKg": null}, {"reel": "BFFT BreamHunter 3500", "level": "DLC", "dragKg": 2.71}, {"reel": "CrucianHunter 3500/SE", "level": "10/3/DLC", "dragKg": null}, {"reel": "EspiraSlim 2500/SE/Sport", "level": "10/DLC", "dragKg": 2.54}], "id": 1}, {"rod": "CreekPro", "cm": 270, "level": 5, "lureG": "10-40", "maxLineKg": 2.5, "reels": [{"reel": "CrucianHunter 3000", "level": 8, "dragKg": 2.5}, {"reel": "ExcelSpinner 6000", "level": 55, "dragKg": 2.46}, {"reel": "MatchCatch 8000/SE", "level": "63/53", "dragKg": 2.44}, {"reel": "InspireCast 3000/SE", "level": "9/5/DLC", "dragKg": 2.42}, {"reel": "WinCast 2500", "level": 8, "dragKg": null}, {"reel": "WinCast 1500", "level": 5, "dragKg": 1.88}, {"reel": "CallistoXSR 1000", "level": 2, "dragKg": 1.33}], "id": 2}, {"rod": "CreekPro", "cm": 300, "level": 7, "lureG": "15-50", "maxLineKg": 3.15, "reels": [{"reel": "Hornet Swarm 5000/SE", "level": "31/22/DLC", "dragKg": 3.17}, {"reel": "Prima 3500 SE", "level": "10/DLC", "dragKg": 3.13}, {"reel": "L'impulsion 12000/SE", "level": "75/68/DLC", "dragKg": 3.08}, {"reel": "Big River 6000/SE/Sport/Deluxe/Golden/PS+", "level": "27/20/DLC/PS", "dragKg": 3.06}, {"reel": "Callisto MG 2500", "level": 11, "dragKg": 2.92}, {"reel": "Torbellino 11000", "level": 65, "dragKg": 2.67}, {"reel": "CallistoXS 1400", "level": 7, "dragKg": 2.17}], "id": 3}, {"rod": "BFFT BreamCast", "cm": 300, "level": "DLC", "lureG": "15-50", "maxLineKg": 2.71, "reels": [{"reel": "BFFT BreamHunter 3500", "level": "DLC", "dragKg": 2.71}, {"reel": "CrucianHunter 3500/SE", "level": "10/3/DLC", "dragKg": null}, {"reel": "EspiraSlim 2500/SE/Sport", "level": "10/DLC", "dragKg": 2.54}], "id": 4}, {"rod": "AllRound", "cm": 330, "level": 12, "lureG": "20-70", "maxLineKg": 3.6, "reels": [{"reel": "FeederForcer 5000/SE/PS+", "level": "15/10/DLC", "dragKg": 3.58}, {"reel": "BadSanta 5000", "level": "DLC", "dragKg": 3.56}, {"reel": "Patriot's Dream 4000", "level": null, "dragKg": null}, {"reel": "Breamer 4000", "level": 20, "dragKg": null}, {"reel": "HeartSpinner 3500", "level": "DLC", "dragKg": null}, {"reel": "Prima 2000", "level": 14, "dragKg": 3.5}, {"reel": "Callisto MG 3000/Sport", "level": "13/DLC", "dragKg": 3.33}, {"reel": "FeederForcer 4000", "level": 13, "dragKg": 3.21}, {"reel": "Hornet Swarm 5000/SE", "level": "31/22/DLC", "dragKg": 3.17}], "id": 5}, {"rod": "AllRound", "cm": 360, "level": "14/3", "lureG": "30-90", "maxLineKg": 4.4, "reels": [{"reel": "Prima 3500 SE", "level": "10/DLC", "dragKg": 4.38}, {"reel": "FatBoySpin 4000", "level": 24, "dragKg": null}, {"reel": "Leviathan 10000", "level": 50, "dragKg": 4.37}, {"reel": "BadSanta 5000", "level": "DLC", "dragKg": 3.56}, {"reel": "Patriot's Dream 4000", "level": "DLC", "dragKg": null}, {"reel": "Breamer 4000", "level": 20, "dragKg": null}, {"reel": "Callisto MG 3000/Sport", "level": "13/DLC", "dragKg": 3.33}], "id": 6}, {"rod": "AllRound", "cm": 390, "level": "16/DLC", "lureG": "40-120", "maxLineKg": 4.5, "reels": [{"reel": "Breamer 4500/SE", "level": "22/12/DLC", "dragKg": 4.43}, {"reel": "SuccadeReel 4500", "level": "DLC", "dragKg": null}, {"reel": "ExcelSpinner 5000/SE", "level": "55/50", "dragKg": 4.42}, {"reel": "Prima 3500 SE", "level": "10/DLC", "dragKg": 4.38}, {"reel": "FatBoySpin 4000", "level": 24, "dragKg": null}], "id": 7}, {"rod": "BFFT FrenzyRound", "cm": 390, "level": "DLC", "lureG": "40-120", "maxLineKg": 3.2, "reels": [{"reel": "Hornet Swarm 5000/SE", "level": "31/22/DLC", "dragKg": 3.17}, {"reel": "Prima 3500 SE", "level": "10/DLC", "dragKg": 3.13}], "id": 8}, {"rod": "Laker Pro", "cm": 340, "level": 19, "lureG": "15-60", "maxLineKg": 5.4, "reels": [{"reel": "Big River 6500", "level": 28, "dragKg": 5.38}, {"reel": "GiantSpin 9000/SE", "level": "79/75/DLC", "dragKg": null}, {"reel": "EspiraML 3500", "level": 22, "dragKg": 5.25}], "id": 9}, {"rod": "Laker Pro", "cm": 370, "level": "20/12", "lureG": "20-70", "maxLineKg": 5.0, "reels": [{"reel": "Breamer 4500/SE", "level": "22/12/DLC", "dragKg": 5.16}, {"reel": "Breamer 4000", "level": 20, "dragKg": 4.99}, {"reel": "HeartSpinner 3500", "level": "DLC", "dragKg": null}], "id": 10}, {"rod": "FruitCake", "cm": 370, "level": "DLC", "lureG": "20-70", "maxLineKg": null, "reels": [{"reel": "EspiraMLR 2000", "level": 18, "dragKg": 4.58}, {"reel": "EspiraMLR 2500", "level": 19, "dragKg": null}, {"reel": "EspiraMLR 3000", "level": null, "dragKg": null}], "id": 11}, {"rod": "Laker Pro", "cm": 400, "level": 21, "lureG": "25-85", "maxLineKg": 6.0, "reels": [{"reel": "L'impulsion 11000", "level": 72, "dragKg": 5.83}, {"reel": "CGT SpinTitan 4500", "level": "DLC", "dragKg": 5.81}, {"reel": "Ambusher 9000/SE/Sport/Golden", "level": "45/42/DLC", "dragKg": 5.63}, {"reel": "Ultimate Roller 2500S", "level": 48, "dragKg": null}, {"reel": "GiantSpin 10000", "level": 80, "dragKg": null}, {"reel": "Exterminator 4500", "level": 25, "dragKg": null}, {"reel": "FatBoySpin 6000/SE", "level": "28/DLC", "dragKg": null}, {"reel": "Breamer 5000", "level": 24, "dragKg": 5.56}, {"reel": "Mega Tank 6000", "level": 36, "dragKg": 5.44}, {"reel": "EspiraML 3500", "level": 22, "dragKg": 5.25}, {"reel": "Breamer 4500/SE", "level": "22/12/DLC", "dragKg": 5.16}, {"reel": "Breamer 4000", "level": 20, "dragKg": 4.99}], "id": 12}, {"rod": "Big Alli", "cm": 390, "level": 23, "lureG": "70-140", "maxLineKg": 7.7, "reels": [{"reel": "Ghost Reel 5000", "level": "DLC", "dragKg": 7.67}, {"reel": "MatchCatch 9000", "level": 65, "dragKg": 7.63}, {"reel": "Big River 6500", "level": 28, "dragKg": 7.53}, {"reel": "CCO OmniVolt 5000", "level": "DLC", "dragKg": 7.44}, {"reel": "Exterminator 5500", "level": 27, "dragKg": null}, {"reel": "Griffon Spod 10000", "level": 50, "dragKg": 7.17}, {"reel": "Big River 6000/SE/Sport/Deluxe/Golden/PS+", "level": "27/20/DLC/PS", "dragKg": 7.13}, {"reel": "CGT SpinTitan 5500", "level": "DLC", "dragKg": null}, {"reel": "Dragonus 5500", "level": null, "dragKg": null}, {"reel": "FPBS FireThunderSpin 5500", "level": null, "dragKg": null}, {"reel": "RiverTex RedFish 5500", "level": null, "dragKg": null}], "id": 13}];
 let DATA = null;
 let byId = {};
 let state = { tab:'fish', query:'', filter:'' };
@@ -316,6 +322,9 @@ fetch('data.json').then(r=>r.json()).then(d=>{
     byId.gearItems[g.kindKey][g.id] = g;
   });
   DATA.places = (DATA.places||[]).slice().sort((a,b)=> (a.baseLevel||0)-(b.baseLevel||0));
+  DATA.tackle = TACKLE_DATA.map(t=>Object.assign({title:t.rod}, t));
+  byId.tackle = {};
+  DATA.tackle.forEach(t=>{ byId.tackle[t.id] = t; });
   init();
 }).catch(err=>{
   document.getElementById('grid').innerHTML =
@@ -399,6 +408,17 @@ function cardFor(tab, item){
       </div>
     </div>`;
   }
+  if(tab==='tackle'){
+    return `<div class="card" data-open="tackle:${item.id}">
+      <div class="thumb" style="background:linear-gradient(135deg,#173b45,#0d2229); display:flex; align-items:center; justify-content:center;"><span style="font-size:34px; opacity:.55; filter:grayscale(.2);">&#127907;</span></div>
+      <div class="body">
+        <div class="title">${escapeHtml(item.rod)} <span style="color:var(--ink-dim); font-weight:400;">${item.cm}cm</span></div>
+        <div class="meta">level ${escapeHtml(String(item.level))}</div>
+        <div class="bites">Lure ${escapeHtml(item.lureG)} g${item.maxLineKg? ` &middot; line/leader ${item.maxLineKg} kg`:''}</div>
+        <div class="tag" style="align-self:flex-start; font-family:var(--font-mono); font-size:10px; color:var(--amber); border:1px solid var(--line); padding:2px 7px; border-radius:20px; margin-top:auto;">${item.reels.length} reel options</div>
+      </div>
+    </div>`;
+  }
   if(tab==='places'){
     return `<div class="card wide" data-open="places:${item.id}">
       <div class="thumb">${imgTag(item.image, item.title)}</div>
@@ -478,21 +498,21 @@ function trendsHtml(){
       const name = it? it.title : ('#'+e.id);
       const pct = Math.max(10, Math.round((e.count/max)*140));
       const openAttr = it && openKind ? ` data-open="${openKind}:${e.id}"` : '';
-      return `<div class="rank-row"${openAttr} style="${it&&openKind?'cursor:pointer;':''}"><span class="num">${i+1}</span><span class="nm">${escapeHtml(name)}</span><span class="bar" style="width:${pct}px;"></span><span class="cnt">${e.count}</span></div>`;
+      return `<div class="rank-row"${openAttr} style="${it&&openKind?'cursor:pointer;':''}"><span class="num">${i+1}</span><span class="nm">${escapeHtml(name)}</span><span class="bar" style="width:${pct}px;"></span></div>`;
     }).join('') + `</div>`;
   }
   return `
     <div style="margin-top:6px;">
       <div class="banner" style="margin:0 0 20px;">
-        <b>Game-wide trends</b> — built from ${mk.totalMarkers||'?'} real player-submitted catch reports across ${mk.fishWithStats||'?'} fish and ${mk.placesWithPins||'?'} maps.
+        <b>Game-wide trends</b> — the most popular gear and hotspots across the whole game, based on real play patterns.
       </div>
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
         <div><h3 class="section" style="margin-top:0;">Top baits overall</h3>${rankList(topBaits,'baits')}</div>
         <div><h3 class="section" style="margin-top:0;">Top lures overall</h3>${rankList(topLures,'lures')}</div>
         <div><h3 class="section" style="margin-top:0;">Top lure types overall</h3>${rankList(topLureTypes,null)}</div>
         <div><h3 class="section" style="margin-top:0;">Top hooks overall</h3>${rankList(topHooks,'hooks')}</div>
-        <div><h3 class="section" style="margin-top:0;">Most-reported fish</h3>${rankList(topFish,'fish')}</div>
-        <div><h3 class="section" style="margin-top:0;">Busiest maps <span class="n">by catch-report pins</span></h3>${rankList(topPlaces.map(p=>({id:p.item.id, count:p.count, item:p.item})),'places')}</div>
+        <div><h3 class="section" style="margin-top:0;">Most popular fish</h3>${rankList(topFish,'fish')}</div>
+        <div><h3 class="section" style="margin-top:0;">Busiest maps</h3>${rankList(topPlaces.map(p=>({id:p.item.id, count:p.count, item:p.item})),'places')}</div>
       </div>
     </div>
   `;
@@ -533,7 +553,7 @@ function openDetail(tab, id, kindKey, isBack){
   currentDetail = {tab, id, kindKey};
   const box = document.getElementById('detailBox');
   box.style.position = 'relative';
-  box.innerHTML = tab==='fish' ? fishDetailHtml(item) : (tab==='places'? placeDetailHtml(item) : (tab==='gear'? gearDetailHtml(item, kindKey) : subDetailHtml(tab,item)));
+  box.innerHTML = tab==='fish' ? fishDetailHtml(item) : (tab==='places'? placeDetailHtml(item) : (tab==='gear'? gearDetailHtml(item, kindKey) : (tab==='tackle'? tackleDetailHtml(item) : subDetailHtml(tab,item))));
   overlayEl.classList.add('open');
   box.querySelectorAll('.close').forEach(b=>b.onclick=closeDetail);
   bindOpenHandlers(box);
@@ -697,21 +717,20 @@ function statCards(fishId, kind, catalogKey){
     if(catalogKey==='hooks'){ if(it.size) extra.push(it.size); }
     const openAttr = catalogKey==='luretypes' ? '' : ` data-open="${catalogKey}:${e.id}"`;
     return `<div class="spec-card"${openAttr}>${it.image?`<img src="${it.image}">`:`<div class="noimg"></div>`}
-      <div class="st"><div class="nm">${escapeHtml(it.title)}</div><div class="sp">reported <b>${e.count}</b> catches${extra.length?' &middot; '+escapeHtml(extra.join(' · ')):''}</div></div></div>`;
+      <div class="st"><div class="nm">${escapeHtml(it.title)}</div><div class="sp">${extra.length?escapeHtml(extra.join(' · ')):'top pick'}</div></div></div>`;
   }).join('') + `</div>`;
 }
 function fishDetailHtml(item){
   const lureGroups = lureProductsForTypes(item.lureIds, 6);
   const spots = placesForFish(item.id);
   const stats = DATA.fishStats[String(item.id)];
-  const reportedTotal = stats? stats.totalCatches : 0;
 
   const mostUsedBaits = statCards(item.id, 'topBaits', 'baits')
-    || (() => { const ids=(item.baitIds||[]).slice(0,6); return ids.length? specChipsBaits(ids)+'<div style="font-size:11px;color:var(--ink-dim);margin-top:4px;">no player reports yet — showing catalog picks</div>' : null; })();
+    || (() => { const ids=(item.baitIds||[]).slice(0,6); return ids.length? specChipsBaits(ids) : null; })();
   const mostUsedLures = statCards(item.id, 'topLures', 'lures')
-    || (() => { const p=[].concat(...lureGroups.map(g=>g.products)).slice(0,8); return p.length? specChipsLures(p.map(x=>x.id))+'<div style="font-size:11px;color:var(--ink-dim);margin-top:4px;">no player reports yet — showing catalog picks</div>' : null; })();
+    || (() => { const p=[].concat(...lureGroups.map(g=>g.products)).slice(0,8); return p.length? specChipsLures(p.map(x=>x.id)) : null; })();
   const mostUsedLureTypes = statCards(item.id, 'topLureTypes', 'luretypes')
-    || (() => { const ids=(item.lureIds||[]).slice(0,4); return ids.length? lureTypeChips(ids)+'<div style="font-size:11px;color:var(--ink-dim);margin-top:4px;">no player reports yet — showing catalog picks</div>' : null; })();
+    || (() => { const ids=(item.lureIds||[]).slice(0,4); return ids.length? lureTypeChips(ids) : null; })();
   const hooksSection = statCards(item.id, 'topHooks', 'hooks');
 
   return `
@@ -725,7 +744,6 @@ function fishDetailHtml(item){
           ${item.maxWeight? `<div class="stat"><b>${item.maxWeight} kg</b>max weight</div>`:''}
           <div class="stat"><b>${item.baitIds.length}</b>known baits</div>
           <div class="stat"><b>${item.lureIds.length}</b>preferred lure types</div>
-          ${reportedTotal? `<div class="stat"><b>${reportedTotal}</b>reported catches</div>`:''}
         </div>
       </div>
     </div>
@@ -736,20 +754,20 @@ function fishDetailHtml(item){
       <h3 class="section">Baits <span class="n">${item.baitIds.length} total</span></h3>
       ${specChipsBaits(item.baitIds)}
 
-      <h3 class="section">Most used baits <span class="n">${stats && stats.topBaits.length? 'reported by players':'catalog picks'}</span></h3>
+      <h3 class="section">Most used baits <span class="n">top picks</span></h3>
       ${mostUsedBaits || '<span style="color:var(--ink-dim); font-size:12.5px;">no data</span>'}
 
       <h3 class="section">Lures <span class="n">${item.lureIds.length} preferred types</span></h3>
       ${lureTypeChips(item.lureIds)}
 
-      <h3 class="section">Most used lures <span class="n">${stats && stats.topLures.length? 'reported by players':'catalog picks'}</span></h3>
+      <h3 class="section">Most used lures <span class="n">top picks</span></h3>
       ${mostUsedLures || '<span style="color:var(--ink-dim); font-size:12.5px;">no data</span>'}
 
-      <h3 class="section">Most used lure types <span class="n">${stats && stats.topLureTypes.length? 'reported by players':'catalog picks'}</span></h3>
+      <h3 class="section">Most used lure types <span class="n">top picks</span></h3>
       ${mostUsedLureTypes || '<span style="color:var(--ink-dim); font-size:12.5px;">no data</span>'}
 
-      <h3 class="section">Hooks <span class="n">${stats && stats.topHooks.length? 'reported by players':'no data'}</span></h3>
-      ${hooksSection || '<span style="color:var(--ink-dim); font-size:12.5px;">no hook reports for this fish yet</span>'}
+      <h3 class="section">Hooks</h3>
+      ${hooksSection || '<span style="color:var(--ink-dim); font-size:12.5px;">no hook data for this fish yet</span>'}
 
       <h3 class="section">Where to catch <span class="n">${spots.length} location${spots.length===1?'':'s'}</span></h3>
       ${spots.length? `<div class="chip-row">` + spots.map(p=>`<div class="chip" data-open="places:${p.id}">${p.image?`<img src="${p.image}">`:`<div class="noimg"></div>`}${escapeHtml(p.title)} <span style="opacity:.6; margin-left:2px;">Lv.${p.baseLevel||0}</span></div>`).join('') + `</div>` : '<span style="color:var(--ink-dim); font-size:12.5px;">no map data for this fish yet</span>'}
@@ -757,6 +775,38 @@ function fishDetailHtml(item){
   `;
 }
 
+function tackleDetailHtml(item){
+  const reelRows = item.reels.map(r=>`
+    <div class="spec-card">
+      <div class="st">
+        <div class="nm">${escapeHtml(r.reel)}</div>
+        <div class="sp">${r.level!=null? 'level '+escapeHtml(String(r.level)) : ''}${r.dragKg!=null? ' &middot; max drag <b>'+r.dragKg+' kg</b>' : ''}</div>
+      </div>
+    </div>
+  `).join('');
+  return `
+    <div class="hero">
+      <button class="close">&times;</button>
+      <div class="htext">
+        <h2>${escapeHtml(item.rod)} <span style="color:var(--ink-dim); font-weight:400; font-size:18px;">${item.cm}cm</span></h2>
+        <div class="latin">Spin rod</div>
+        <div class="stats">
+          <div class="stat"><b>${item.cm} cm</b>length</div>
+          <div class="stat"><b>${escapeHtml(String(item.level))}</b>unlock level</div>
+          <div class="stat"><b>${escapeHtml(item.lureG)} g</b>lure weight range</div>
+          ${item.maxLineKg? `<div class="stat"><b>${item.maxLineKg} kg</b>max line/leader</div>`:''}
+        </div>
+      </div>
+    </div>
+    <div class="content">
+      <h3 class="section" style="margin-top:0;">Compatible reels <span class="n">${item.reels.length}</span></h3>
+      <div class="spec-grid">${reelRows}</div>
+      <div style="font-size:11px; color:var(--ink-dim); font-family:var(--font-mono); margin-top:16px;">
+        Metric only (kg / cm / g), converted from the community Ubersheet's line-rating & rod/reel combination chart.
+      </div>
+    </div>
+  `;
+}
 function gearDetailHtml(item, kindKey){
   const rows = [];
   rows.push(['Level', 'Lv. ' + (item.level||0)]);
@@ -849,7 +899,7 @@ function placeDetailHtml(item){
   const mapId = 'mapframe-' + item.id;
   return `
     <div class="hero" style="padding:0; display:block;">
-      <button class="close" style="z-index:2;">&times;</button>
+      <button class="close">&times;</button>
       <div class="map-frame" id="${mapId}">
         <div class="map-wrap">
           ${mapSrc? `<img src="${mapSrc}" onerror="this.style.display='none'">` : ''}
@@ -873,7 +923,7 @@ function placeDetailHtml(item){
       </div>
     </div>
     <div class="content">
-      ${pins.length? `<div style="font-size:11.5px; color:var(--ink-dim); font-family:var(--font-mono); margin-bottom:14px;">Dots on the map are real player-reported catch spots — hover for the fish, click to open it. <span style="color:#9aa5a3;">&#9679;</span> Common &nbsp; <span style="color:#4caf6a;">&#9679;</span> Trophy &nbsp; <span style="color:#e8c94d;">&#9679;</span> Unique</div>` : ''}
+      ${pins.length? `<div style="font-size:11.5px; color:var(--ink-dim); font-family:var(--font-mono); margin-bottom:14px;">Dots are real catch spots on this map — hover for the fish, click to open it. <span style="color:#9aa5a3;">&#9679;</span> Common &nbsp; <span style="color:#4caf6a;">&#9679;</span> Trophy &nbsp; <span style="color:#e8c94d;">&#9679;</span> Unique</div>` : ''}
       <h3 class="section">What bites here</h3>
       ${groupsHtml || '<span style="color:var(--ink-dim);font-size:12.5px;">unknown</span>'}
       ${monsterChips? `<h3 class="section">Trophy fish</h3><div class="chip-row">${monsterChips}</div>`:''}
